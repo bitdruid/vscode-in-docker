@@ -1,0 +1,39 @@
+#!/bin/sh
+# Install/update VS Code to the latest stable release (checksum-verified).
+# Does nothing if the latest version is already installed, unless --force is given.
+
+set -eu
+
+if [ "$(id -u)" -ne 0 ]; then
+    exec sudo "$0" "$@"
+fi
+
+meta="$(curl -fsSL --max-time 30 "https://update.code.visualstudio.com/api/update/linux-deb-x64/stable/latest")"
+field() { printf '%s' "$meta" | sed -n "s/.*\"$1\":\"\([^\"]*\)\".*/\1/p"; }
+latest="$(field productVersion)"
+url="$(field url)"
+sha256="$(field sha256hash)"
+[ -n "$latest" ] && [ -n "$url" ] && [ -n "$sha256" ] || { echo "Unexpected update API response." >&2; exit 1; }
+
+installed="$(dpkg-query -W -f='${Version}' code 2>/dev/null | cut -d- -f1)" || installed=""
+if [ "$installed" = "$latest" ] && [ "${1:-}" != "--force" ]; then
+    echo "VS Code $installed is up to date."
+    exit 0
+fi
+
+echo "Updating VS Code ${installed:-(none)} -> $latest..."
+tmp="$(mktemp --suffix=.deb)"
+trap 'rm -f "$tmp"' EXIT
+curl -fsSL --max-time 600 "$url" -o "$tmp"
+echo "$sha256  $tmp" | sha256sum -c --quiet
+chmod 644 "$tmp"
+
+# add-pkg also works at build time, when /etc/passwd doesn't exist yet.
+add-pkg "$tmp"
+
+# dbus (a dependency) registers a statoverride for group 'messagebus', which doesn't
+# exist in the runtime user database, so every later dpkg run would fail.
+[ ! -f /var/lib/dpkg/statoverride ] || sed -i '/ messagebus /d' /var/lib/dpkg/statoverride
+
+echo "Installed VS Code $(dpkg-query -W -f='${Version}' code | cut -d- -f1)."
+[ -z "$installed" ] || echo "Restart the container or VS Code window to run the new version."

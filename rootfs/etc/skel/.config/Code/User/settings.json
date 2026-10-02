@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.fontFamily": "MesloLGS NF",
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    // No browser in the container: sign in to GitHub with a device code.
+    "github-authentication.preferDeviceCodeFlow": true
+}
