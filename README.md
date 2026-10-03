@@ -1,10 +1,13 @@
 # VS Code in a Container
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/bitdruid/vscode-in-docker)](https://hub.docker.com/r/bitdruid/vscode-in-docker)
+[![Image Size](https://img.shields.io/docker/image-size/bitdruid/vscode-in-docker/latest)](https://hub.docker.com/r/bitdruid/vscode-in-docker)
+
 The desktop version of VS Code in a Docker container, used through a web browser (noVNC) or a VNC client.
 
 Built on [jlesage/docker-baseimage-gui](https://github.com/jlesage/docker-baseimage-gui).
 
-<img src="example.jpg" alt="VS Code running in the container" width="600">
+<img src="https://raw.githubusercontent.com/bitdruid/vscode-in-docker/main/example.jpg" alt="VS Code running in the container" width="600">
 
 ## Go
 
@@ -12,12 +15,18 @@ Built on [jlesage/docker-baseimage-gui](https://github.com/jlesage/docker-baseim
 docker compose up -d --build
 ```
 
-- Web: http://localhost:5800
-- VNC: `localhost:5900`
+Then open http://localhost:5800.
 
 ## Home
 
 The user `app` has a normal home at `/home/app`, with zsh as its login shell. VS Code, its terminal and file dialogs start there. VS Code's settings and extensions, git/gh config and the projects all live in this folder.
+
+## Ports
+
+| Port   | Description                                      |
+| ------ | ------------------------------------------------ |
+| `5800` | Web interface (noVNC): http://localhost:5800     |
+| `5900` | VNC, for a VNC client                            |
 
 ## Volumes
 

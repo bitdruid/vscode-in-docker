@@ -1,5 +1,6 @@
 services:
   vscode:
+    # image: bitdruid/vscode-in-docker:latest
     build: .
     container_name: vscode
     ports:
